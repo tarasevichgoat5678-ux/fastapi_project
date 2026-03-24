@@ -22,5 +22,4 @@ class TaskRepository:
             qwery = select(TaskOrm)
             result = await session.execute(qwery)
             tasks_models = result.scalars().all()
-            task_schemas = [STack.model_validate(task_model) for task_model in tasks_models ]
-            return task_schemas
+            return [STack.model_validate(task_model.__dict__) for task_model in tasks_models ]

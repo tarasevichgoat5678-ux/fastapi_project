@@ -17,7 +17,7 @@ class TaskOrm(Model):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str]
-    description: Mapped[Optional[str]]
+    description: Mapped[str | None ]
 
 
 async def create_tables():

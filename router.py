@@ -16,7 +16,7 @@ async def add_task(
     return {'ok': True, "task_id": task_id}
 
 
-@router.get("")
+@router.get("", response_model=list[STack])
 async def get_tasks() -> list[STack]:
     tasks = await TaskRepository.find_all()
     return tasks
