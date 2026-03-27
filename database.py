@@ -1,9 +1,10 @@
-from typing import Optional
 
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker, DeclarativeBase, Mapped, mapped_column
 
-engine = create_async_engine("sqlite+aiosqlite:///tasks.db")
+from config import popa
+
+engine = create_async_engine(popa.PUT)
 
 new_session = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
 
