@@ -7,7 +7,6 @@ class Taskadd(BaseModel):
     name: str
     description: str | None = None
     status: str = 'active'
-    create_at: datetime = datetime.now()
     owner_id: int
     category_id: int | None = None
 
@@ -15,11 +14,11 @@ class Taskadd(BaseModel):
 
 class Task(Taskadd):
     id: int
+    create_at: datetime
 
 
 class OwnerAdd(BaseModel):
     name: str
-    category_id: int | None = None
 
 
 class Owner(OwnerAdd):
@@ -35,4 +34,4 @@ class CategoryAdd(BaseModel):
     name: str
 
 class Category(CategoryAdd):
-    id: int
+    id: int | None

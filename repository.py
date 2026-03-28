@@ -1,5 +1,7 @@
 from sqlite3 import IntegrityError
 
+from fastapi import HTTPException
+
 from database import new_session, TaskOrm, OwnerOrm, CategoryOrm
 from schemas import Taskadd, Task, Owner, OwnerAdd, CategoryAdd, Category
 from sqlalchemy import select
@@ -15,11 +17,8 @@ class TaskRepository:
                 await session.flush()
                 await session.commit()
                 return task.id
-            except IntegrityError as e:
-                if "UNIQUE constraint failed: tasks.id" in str(e):
-                    raise ValueError(f"Task with id {data.id} already exists")
-                else:
-                    raise e
+            except IntegrityError:
+                raise HTTPException(status_code=409,detail="Task with such constraints already exists")
 
     @classmethod
     async def find_all(cls) -> list[Task]:
@@ -34,13 +33,15 @@ class OwnerRepository:
     @classmethod
     async def add_one(cls, data: OwnerAdd):
         async with new_session() as session:
-            owner_dict = data.model_dump()
-
-            owner = OwnerOrm(**owner_dict)
-            session.add(owner)
-            await session.flush()
-            await session.commit()
-            return owner.id
+            try:
+                owner_dict = data.model_dump()
+                owner = OwnerOrm(**owner_dict)
+                session.add(owner)
+                await session.flush()
+                await session.commit()
+                return owner.id
+            except IntegrityError:
+                raise HTTPException(status_code=409,detail="Owner with such constraints already exists")
 
     @classmethod
     async def find_all(cls) -> list[Owner]:
@@ -57,7 +58,10 @@ class OwnerRepository:
             result = await session.execute(query)
             owner_orm = result.scalar_one_or_none()
             if owner_orm is None:
-                raise ValueError("Owner not found")
+                raise HTTPException(
+                    status_code=404,
+                    detail=f"Owner with id={owner_id} not found"
+                )
             return Owner.model_validate(owner_orm.__dict__)
 
 
@@ -65,11 +69,17 @@ class CategoryRepository:
     @classmethod
     async def add_one(cls, data: CategoryAdd) -> int:
         async with new_session() as session:
-            category = CategoryOrm(**data.model_dump())
-            session.add(category)
-            await session.flush()
-            await session.commit()
-            return category.id
+            try:
+                category = CategoryOrm(**data.model_dump())
+                session.add(category)
+                await session.flush()
+                await session.commit()
+            except IntegrityError:
+                raise HTTPException(
+                    status_code=409,
+                    detail="Category with such name already exists"
+                )
+
 
     @classmethod
     async def find_all(cls) -> list[Category]:
