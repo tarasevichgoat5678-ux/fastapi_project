@@ -21,6 +21,12 @@ class CategoryOrm(Model):
     name: Mapped[str]
 
 
+class CityOrm(Model):
+    __tablename__ = "cities"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str]
+
+
 
 class TaskOrm(Model):
     __tablename__ = "tasks"
@@ -32,11 +38,14 @@ class TaskOrm(Model):
     create_at: Mapped[datetime] = mapped_column(default=func.now())
     owner_id: Mapped[int] = mapped_column(ForeignKey("owners.id"))
     category_id: Mapped[int | None] = mapped_column(ForeignKey("categories.id"))
+    city: Mapped[str | None]
+
 
 
 
 engine = create_async_engine(polka.PUT)
 new_session = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
+
 
 
 

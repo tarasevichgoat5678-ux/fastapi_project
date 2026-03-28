@@ -9,6 +9,7 @@ class Taskadd(BaseModel):
     status: str = 'active'
     owner_id: int
     category_id: int | None = None
+    city: str | None = None
 
 
 
