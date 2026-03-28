@@ -1,6 +1,5 @@
 from datetime import datetime
 
-
 from sqlalchemy import func, ForeignKey
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker, DeclarativeBase, Mapped, mapped_column
@@ -8,11 +7,9 @@ from sqlalchemy.orm import sessionmaker, DeclarativeBase, Mapped, mapped_column
 from config import polka
 
 
-
-
-
 class Model(DeclarativeBase):
     pass
+
 
 class CategoryOrm(Model):
     __tablename__ = "categories"
@@ -27,13 +24,12 @@ class CityOrm(Model):
     name: Mapped[str]
 
 
-
 class TaskOrm(Model):
     __tablename__ = "tasks"
 
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str]
-    description: Mapped[str | None ]
+    description: Mapped[str | None]
     status: Mapped[str] = mapped_column(default="active")
     create_at: Mapped[datetime] = mapped_column(default=func.now())
     owner_id: Mapped[int] = mapped_column(ForeignKey("owners.id"))
@@ -41,12 +37,8 @@ class TaskOrm(Model):
     city: Mapped[str | None]
 
 
-
-
 engine = create_async_engine(polka.PUT)
 new_session = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
-
-
 
 
 class OwnerOrm(Model):

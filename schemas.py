@@ -12,7 +12,6 @@ class Taskadd(BaseModel):
     city: str | None = None
 
 
-
 class Task(Taskadd):
     id: int
     create_at: datetime
@@ -33,6 +32,7 @@ class TaskId(BaseModel):
 
 class CategoryAdd(BaseModel):
     name: str
+
 
 class Category(CategoryAdd):
     id: int | None
