@@ -9,7 +9,7 @@ class Taskadd(BaseModel):
     status: str = 'active'
     create_at: datetime = datetime.now()
     owner_id: int
-    category_id: int | None
+    category_id: int | None = None
 
 
 
@@ -17,12 +17,12 @@ class Task(Taskadd):
     id: int
 
 
-class Owneradd(BaseModel):
+class OwnerAdd(BaseModel):
     name: str
     category_id: int | None = None
 
 
-class Owner(Owneradd):
+class Owner(OwnerAdd):
     id: int
 
 
@@ -33,3 +33,6 @@ class TaskId(BaseModel):
 
 class CategoryAdd(BaseModel):
     name: str
+
+class Category(CategoryAdd):
+    id: int

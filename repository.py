@@ -1,9 +1,8 @@
 from sqlite3 import IntegrityError
 
-from database import new_session, TaskOrm, OwnerOrm
-from schemas import Taskadd, Task, Owneradd, Owner
+from database import new_session, TaskOrm, OwnerOrm, CategoryOrm
+from schemas import Taskadd, Task, Owner, OwnerAdd, CategoryAdd, Category
 from sqlalchemy import select
-
 
 
 class TaskRepository:
@@ -31,10 +30,9 @@ class TaskRepository:
             return [Task.model_validate(task_model.__dict__) for task_model in tasks_models]
 
 
-
 class OwnerRepository:
     @classmethod
-    async def add_one(cls, data: Owneradd):
+    async def add_one(cls, data: OwnerAdd):
         async with new_session() as session:
             owner_dict = data.model_dump()
 
@@ -49,7 +47,7 @@ class OwnerRepository:
         async with (new_session() as session):
             query = select(OwnerOrm)
             result = await session.execute(query)
-            owner_models= result.scalars().all()
+            owner_models = result.scalars().all()
             return [Owner.model_validate(owner_model.__dict__) for owner_model in owner_models]
 
     @classmethod
@@ -61,3 +59,22 @@ class OwnerRepository:
             if owner_orm is None:
                 raise ValueError("Owner not found")
             return Owner.model_validate(owner_orm.__dict__)
+
+
+class CategoryRepository:
+    @classmethod
+    async def add_one(cls, data: CategoryAdd) -> int:
+        async with new_session() as session:
+            category = CategoryOrm(**data.model_dump())
+            session.add(category)
+            await session.flush()
+            await session.commit()
+            return category.id
+
+    @classmethod
+    async def find_all(cls) -> list[Category]:
+        async with new_session() as session:
+            query = select(CategoryOrm)
+            result = await session.execute(query)
+            orm_cats = result.scalars().all()
+            return [Category.model_validate(t.__dict__) for t in orm_cats]

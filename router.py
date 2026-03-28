@@ -2,13 +2,13 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException
 
-from repository import TaskRepository, OwnerRepository
-from schemas import Taskadd, Task, TaskId, Owner, Owneradd, CategoryAdd
+from repository import TaskRepository, OwnerRepository, CategoryRepository
+from schemas import Taskadd, Task, TaskId, Owner, OwnerAdd, CategoryAdd, Category
 
-router = APIRouter(prefix="/categories", tags=["Категории"])
+router_task = APIRouter(prefix="/tacks", tags=["Таски"])
 
 
-@router.post("", response_model=TaskId)
+@router_task.post("", response_model=TaskId)
 async def add_task(
         task: Annotated[Taskadd, Depends()],
 ) -> TaskId:
@@ -19,29 +19,43 @@ async def add_task(
         raise HTTPException(status_code=409, detail=str(e))
 
 
-@router.get("", response_model=list[Task])
+@router_task.get("", response_model=list[Task])
 async def get_tasks() -> list[Task]:
     tasks = await TaskRepository.find_all()
     return tasks
 
+router_owners = APIRouter(prefix="/owners", tags=["Владельцы"])
 
-@router.post("/owners")
-async def add_owner(owner: Annotated[Owneradd, Depends()]) -> None:
-    await OwnerRepository.add_one(owner)
+@router_owners.post("", response_model=Owner)
+async def add_owner(
+    owner: Annotated[OwnerAdd, Depends()],
+) -> Owner:
+    owner_id = await OwnerRepository.add_one(owner)
+    return Owner(id=owner_id, **owner.model_dump())
 
 
 
-@router.get("/owners/{owner_id}", response_model=Owner)
-async def get_owner(owner_id: int) -> Owner:
-    owner = await OwnerRepository.find_one(owner_id)
-    return owner
-
-@router.get("/owners", response_model=list[Owner])
+@router_owners.get("", response_model=list[Owner])
 async def get_owners() -> list[Owner]:
-    owners = await OwnerRepository.find_all()
-    return owners
+    return await OwnerRepository.find_all()
 
 
-@router.post("", response_model=CategoryAdd)
-async def add_category(category: CategoryAdd) -> CategoryAdd:
-    return CategoryAdd(name=category.name)
+
+
+@router_owners.get("/{owner_id}", response_model=Owner)
+async def get_owner(owner_id: int) -> Owner:
+    return await OwnerRepository.find_one(owner_id)
+
+router = APIRouter(prefix="/categories", tags=["Категории"])
+
+@router.post("", response_model=Category)
+async def add_category(
+    category: CategoryAdd,
+) -> Category:
+    category_id = await CategoryRepository.add_one(category)
+    return Category(id=category_id, name=category.name)
+
+
+@router.get("", response_model=list[Category])
+async def get_categories() -> list[Category]:
+    return await CategoryRepository.find_all()
